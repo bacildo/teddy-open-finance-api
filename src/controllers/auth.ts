@@ -1,17 +1,19 @@
-import { JsonController, Post, Body } from 'routing-controllers';
-import { Service } from 'typedi';
-import { AuthService } from '../services/';
+import { JsonController, Post, Body } from "routing-controllers";
+import { Service } from "typedi";
+import { AuthService } from "../services/";
+import { UserEntity } from "../entities";
 
-@JsonController('/auth')
+@JsonController("/auth")
 @Service()
 export class AuthController {
+  private authService: AuthService;
+  constructor() {
+    this.authService = new AuthService();
+  }
 
-  constructor(private readonly authService: AuthService) {}
-
-  @Post('/login')
-  async login(@Body() body: { email: string, password: string }): Promise<{ token: string }> {
-    const { email, password } = body;
-    const token = await this.authService.login(email, password);
+  @Post("/login")
+  async login(@Body() body: UserEntity): Promise<{ token: string }> {
+    const token = await this.authService.login(body);
     return { token };
   }
 }

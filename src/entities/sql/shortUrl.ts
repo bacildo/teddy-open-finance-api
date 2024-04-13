@@ -1,6 +1,6 @@
 // ShortenedURL.ts
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn } from 'typeorm';
-import { UserEntity } from './';
+import { UserEntity } from './user';
 
 @Entity("url_short")
 export class ShortenedURL extends BaseEntity {

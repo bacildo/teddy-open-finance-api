@@ -23,20 +23,6 @@ export class UserRepository extends Abstract<UserEntity> {
     }
   }
 
-  async findUserByCredentials(
-    email: string,
-    password: string
-  ): Promise<UserEntity | null> {
-    try {
-      const result = await this.mySqlRepository.findOne({
-        where: { email, password },
-      });
-      return result;
-    } catch (error) {
-      throw new Error(` User not found, ${error}`);
-    }
-  }
-
   async generateToken(id: string): Promise<string> {
     try {
       const token = jwt.sign({ id }, configSecret, {
@@ -49,12 +35,24 @@ export class UserRepository extends Abstract<UserEntity> {
     }
   }
 
-  async createUser(user: UserEntity): Promise<UserEntity> {
+  async createAndSave(user: UserEntity): Promise<UserEntity> {
     try {
-      const result = await this.mongoRepository.save(user);
+      const result = await this.mySqlRepository.save(user);
       return result;
     } catch (error) {
       throw new Error(`${error}, User not created`);
+    }
+  }
+
+  async findUserByCredentials(email: string): Promise<UserEntity | null> {
+    try {
+      const result = await this.mySqlRepository.findOne({
+        where: { email: email },
+      });
+
+      return result || null;
+    } catch (error) {
+      throw new Error(` Error to find, ${error}`);
     }
   }
 

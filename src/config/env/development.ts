@@ -16,6 +16,7 @@ export const mysqlOptions: DataSourceOptions = {
 };
 
 export const configSecret = 'SECRETTOKEN'
+
 export const databaseEnabled = {
   mysqlOptions: true,
 };

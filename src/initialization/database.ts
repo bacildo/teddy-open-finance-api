@@ -7,7 +7,7 @@ import { databaseEnabled, mysqlOptions } from "../config";
 export class Database {
   private static dataSourceMysql: DataSource;
 
-  async connectMongo(): Promise<void> {
+  async connectMysql(): Promise<void> {
     if (databaseEnabled.mysqlOptions) {
       const { type, database } = mysqlOptions;
       Database.dataSourceMysql = new DataSource(mysqlOptions);
@@ -26,7 +26,7 @@ export class Database {
     return Database.dataSourceMysql;
   }
 
-  public get mongoIsInitialized(): boolean {
+  public get mysqlIsInitialized(): boolean {
     return Database.mysql?.isInitialized || false;
   }
 }

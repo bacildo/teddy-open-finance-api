@@ -1,27 +1,40 @@
 // UserController.ts
 import {
-  Authorized,
+  Body,
   CurrentUser,
   Get,
   JsonController,
   Param,
+  Post,
+  UseBefore,
 } from "routing-controllers";
 import { Service } from "typedi";
-import { UserEntity } from "../entities/";
+import { ShortenedURL, UserEntity } from "../entities/";
+import { validateToken } from "../middleware/jwtVerify";
 import { UserService } from "../services/";
-import { ShortenedURL } from '../entities/';
 
-@JsonController("/user")
 @Service()
+@JsonController("/user")
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  private userService: UserService;
+  constructor() {
+    this.userService = new UserService();
+  }
 
   @Get("/:id/shortenedURLs")
-  @Authorized()
+  @UseBefore(validateToken)
   async getShortenedURLs(
     @Param("id") id: number,
     @CurrentUser() user: UserEntity
   ): Promise<ShortenedURL[]> {
     return this.userService.getShortenedURLsByUser(id, user);
+  }
+  @Post("/register")
+  public async createUser(@Body() user: UserEntity): Promise<UserEntity> {
+    if (Object.keys(user).length == 0) {
+      throw new Error("Please inform the user data");
+    } else {
+      return await this.userService.createUser(user);
+    }
   }
 }

@@ -7,10 +7,13 @@ import { DeepPartial } from "typeorm";
 
 @Service()
 export class ShortenedURLService {
-  constructor(
-    private readonly shortenedURLRepository: ShortenedURLRepository,
-    private readonly userRepository: UserRepository
-  ) {}
+  private shortenedURLRepository: ShortenedURLRepository;
+  private userRepository: UserRepository;
+
+  constructor() {
+    this.shortenedURLRepository = new ShortenedURLRepository();
+    this.userRepository = new UserRepository();
+  }
 
   async shortenURL(
     originalURL: string,

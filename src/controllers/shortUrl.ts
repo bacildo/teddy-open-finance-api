@@ -9,17 +9,22 @@ import {
   Param,
   Put,
   CurrentUser,
+  UseBefore,
 } from "routing-controllers";
 import { ShortenedURLService } from "../services";
 import { UserEntity } from "../entities/";
 import { ShortenedURL } from "../entities/";
+import { validateToken } from "../middleware/jwtVerify";
 
 @JsonController("/shortenedURL")
 export class ShortURLController {
-  constructor(private readonly shortenedURLService: ShortenedURLService) {}
+  private shortenedURLService: ShortenedURLService;
+  constructor() {
+    this.shortenedURLService = new ShortenedURLService();
+  }
 
   @Post()
-  @Authorized()
+  @UseBefore(validateToken)
   async shortenURL(
     @Body() body: { originalURL: string },
     @CurrentUser() user: UserEntity

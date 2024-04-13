@@ -3,10 +3,10 @@ import { Database, Server } from "./index";
 
 export class App {
   private server = new Server();
-  private databaseMongo = new Database();
+  private databaseSql = new Database();
 
   async appInitialize(): Promise<Server> {
-    await this.databaseMongo.connectMongo();
+    await this.databaseSql.connectMysql();
     setTimeout(() => {
       this.server.init();
       this.server.start();
