@@ -29,7 +29,7 @@ export class ShortenedURLService {
       url,
       short_url: shortenedURL,
       count_clicks: 0,
-      user,
+      user
     };
     console.log("newshortenurllllllllll", newShortenedURL);
 
@@ -42,7 +42,7 @@ export class ShortenedURLService {
   private generateShortenedURL(): string {
     const characters =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let short_url = "";
+    let short_url = "http://localhost/";
     for (let i = 0; i < 6; i++) {
       short_url += characters.charAt(
         Math.floor(Math.random() * characters.length)

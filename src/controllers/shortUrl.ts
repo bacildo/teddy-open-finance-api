@@ -24,10 +24,15 @@ export class ShortURLController {
   @Post()
   @UseBefore(validateToken)
   async shortenURL(
-    @Body() body:ShortenedURL,
+    @Body() body: ShortenedURL,
     @CurrentUser() user: UserEntity
   ): Promise<ShortenedURL> {
-    return this.shortenedURLService.shortenURL(body.url, user.id);
+    let userId: number | undefined = undefined;
+    if (user) {
+      userId = user.id;
+    }
+
+    return this.shortenedURLService.shortenURL(body.url, userId);
   }
 
   @Get("/:id")
