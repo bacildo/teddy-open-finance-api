@@ -1,20 +1,18 @@
-// ShortenedURLController.ts
 import {
-  JsonController,
-  Post,
-  Body,
   Authorized,
-  Get,
-  Delete,
-  Param,
-  Put,
+  Body,
   CurrentUser,
+  Delete,
+  Get,
+  JsonController,
+  Param,
+  Post,
+  Put,
   UseBefore,
 } from "routing-controllers";
-import { ShortenedURLService } from "../services";
-import { UserEntity } from "../entities/";
-import { ShortenedURL } from "../entities/";
+import { ShortenedURL, UserEntity } from "../entities/";
 import { validateToken } from "../middleware/jwtVerify";
+import { ShortenedURLService } from "../services";
 
 @JsonController("/shortenedURL")
 export class ShortURLController {
@@ -26,10 +24,10 @@ export class ShortURLController {
   @Post()
   @UseBefore(validateToken)
   async shortenURL(
-    @Body() body: { originalURL: string },
+    @Body() body:ShortenedURL,
     @CurrentUser() user: UserEntity
   ): Promise<ShortenedURL> {
-    return this.shortenedURLService.shortenURL(body.originalURL, user.id);
+    return this.shortenedURLService.shortenURL(body.url, user.id);
   }
 
   @Get("/:id")

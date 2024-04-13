@@ -10,7 +10,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     super(Database.mysql, ShortenedURL);
   }
 
-  async findByShortenedURLById(id: number): Promise<ShortenedURL | null> {
+  async findByShortenedURLById(id: number,): Promise<ShortenedURL | null> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { id: id },
@@ -112,6 +112,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
   async createShortenedURL(
     data: DeepPartial<ShortenedURL>
   ): Promise<ShortenedURL> {
+    console.log("DAAAAAAAAAAAAATA", data)
     const newShortenedURL = this.mySqlRepository.create({
       ...data,
       count_clicks: 0,

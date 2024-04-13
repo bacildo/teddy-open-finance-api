@@ -15,10 +15,7 @@ export class ShortenedURLService {
     this.userRepository = new UserRepository();
   }
 
-  async shortenURL(
-    originalURL: string,
-    userId?: number
-  ): Promise<ShortenedURL> {
+  async shortenURL(url: string, userId?: number): Promise<ShortenedURL> {
     let user = null;
     if (userId) {
       user = await this.userRepository.findUserById(userId);
@@ -29,11 +26,12 @@ export class ShortenedURLService {
 
     const shortenedURL = this.generateShortenedURL();
     const newShortenedURL = {
-      originalURL,
-      shortenedURL,
-      clicks: 0,
+      url,
+      short_url: shortenedURL,
+      count_clicks: 0,
       user,
     };
+    console.log("newshortenurllllllllll", newShortenedURL);
 
     await this.shortenedURLRepository.createShortenedURL(
       newShortenedURL as DeepPartial<ShortenedURL>
@@ -44,13 +42,14 @@ export class ShortenedURLService {
   private generateShortenedURL(): string {
     const characters =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let shortenedURL = "";
+    let short_url = "";
     for (let i = 0; i < 6; i++) {
-      shortenedURL += characters.charAt(
+      short_url += characters.charAt(
         Math.floor(Math.random() * characters.length)
       );
     }
-    return shortenedURL;
+    console.log("xxxxxxxxxxxxxxx", short_url);
+    return short_url;
   }
 
   async getShortenedURLById(id: number): Promise<ShortenedURL | null> {

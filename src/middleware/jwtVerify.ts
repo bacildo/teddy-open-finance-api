@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { configSecret } from "../config";
-import { UserRepository } from "../repositories/";
+// middleware/validateToken.ts
+import { Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { configSecret } from '../config';
+import { UserRepository } from '../repositories/';
+import { CustomRequest } from '../interfaces/';
 
 export async function validateToken(
-  req: Request,
+  req: CustomRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> {
@@ -12,31 +14,26 @@ export async function validateToken(
 
   const { authorization } = req.headers;
   if (!authorization) {
-    res.status(401).send({ message: "Invalid token" });
+    res.status(401).send({ message: 'Invalid token' });
     return;
   }
-  const parts = authorization?.split(" ");
-  if (parts?.length !== 2) {
-    res.status(401).send({ message: "Invalid token" });
+  const parts = authorization.split(' ');
+  if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+    res.status(401).send({ message: 'Invalid token' });
     return;
   }
-  const [schema, token] = parts;
-  if (!/^Bearer$/i.test(schema)) {
-    res.status(401).send({ message: "Invalid token" });
-    return;
-  }
+  const token = parts[1];
+
   try {
-    const decoded = jwt.verify(token, configSecret) as {
-      id: number;
-    };
+    const decoded = jwt.verify(token, configSecret) as { id: number };
     const user = await userRepository.findUserById(decoded.id);
     if (!user) {
-      res.status(401).send({ message: "Invalid token" });
+      res.status(401).send({ message: 'Invalid token' });
       return;
     }
-    res.locals.user = user;
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).send({ message: "Invalid token" });
+    res.status(401).send({ message: 'Invalid token' });
   }
 }

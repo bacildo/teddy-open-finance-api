@@ -30,7 +30,7 @@ export class UserController {
     return this.userService.getShortenedURLsByUser(id, user);
   }
   @Post("/register")
-  public async createUser(@Body() user: UserEntity): Promise<UserEntity> {
+  async createUser(@Body() user: UserEntity): Promise<UserEntity> {
     if (Object.keys(user).length == 0) {
       throw new Error("Please inform the user data");
     } else {
