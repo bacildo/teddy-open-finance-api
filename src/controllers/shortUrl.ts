@@ -58,13 +58,30 @@ export class ShortURLController {
   @UseBefore(validateToken)
   async deleteShortenedURL(
     @Param("id") id: number,
-    @Res() res: Response
+    @Res() res: Response,
+    @Req() req: CustomRequest
   ): Promise<Response> {
     try {
+      const userIdToken = req.user?.id;
+      const userId = await this.shortenedURLService.getShortenedURLById(id);
+
+      if (!userId.user) {
+        return res
+          .status(404)
+          .json({ message: "You must be logged in for delete a user" });
+      }
+      if (!userIdToken) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      if (userIdToken !== userId.user.id) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
       await this.shortenedURLService.deleteShortenedURL(id);
       return res.send({ message: "Success!" });
     } catch (error) {
-      return res.status(500).send({ message: "Delete failed!" });
+      return res.status(500).send({ message: "Delete failed, user probably deleted!" });
     }
   }
 
@@ -106,12 +123,11 @@ export class ShortURLController {
   ): Promise<Response> {
     try {
       const userIdToken = req.user?.id;
-      const shortenedURL  = await this.shortenedURLService.getShortenedURLById(id)
-
+      const userId = await this.shortenedURLService.getShortenedURLById(id);
       if (!userIdToken) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      if (userIdToken !== shortenedURL.user.id) {
+      if (userIdToken !== userId.user.id) {
         return res.status(403).json({ message: "Forbidden" });
       }
       const updatedShortenURL =
