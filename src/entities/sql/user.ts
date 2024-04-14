@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity("user_info")
 export class UserEntity extends BaseEntity {
@@ -10,4 +10,7 @@ export class UserEntity extends BaseEntity {
 
   @Column()
   password!: string;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }

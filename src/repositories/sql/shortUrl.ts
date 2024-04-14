@@ -1,16 +1,16 @@
-import { ShortenedURL, UserEntity } from "../../entities";
+import { ShortenedURLEntity, UserEntity } from "../../entities";
 import { Abstract } from "../abstract/abstract";
 import { Database } from "../../initialization";
 import { Service } from "typedi";
 import { DeepPartial } from "typeorm";
 
 @Service()
-export class ShortenedURLRepository extends Abstract<ShortenedURL> {
+export class ShortenedURLRepository extends Abstract<ShortenedURLEntity> {
   constructor() {
-    super(Database.mysql, ShortenedURL);
+    super(Database.mysql, ShortenedURLEntity);
   }
 
-  async findByShortenedURLById(id: number): Promise<ShortenedURL | null> {
+  async findByShortenedURLById(id: number): Promise<ShortenedURLEntity > {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { id: id },
@@ -25,7 +25,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     }
   }
 
-  async findByShortenedURL(shortUrl: string): Promise<ShortenedURL | null> {
+  async findByShortenedURL(shortUrl: string): Promise<ShortenedURLEntity | null> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { short_url: shortUrl },
@@ -47,7 +47,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     await this.mySqlRepository.save(shortenedURL);
   }
 
-  async findByOriginalURL(originalURL: string): Promise<ShortenedURL | null> {
+  async findByOriginalURL(originalURL: string): Promise<ShortenedURLEntity | null> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { url: originalURL },
@@ -78,7 +78,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
       throw new Error(`${error}`);
     }
   }
-  async findByUser(user: UserEntity): Promise<ShortenedURL[]> {
+  async findByUser(user: UserEntity): Promise<ShortenedURLEntity[]> {
     try {
       const result = await this.mySqlRepository.find({
         where: { user: { id: user.id } },
@@ -89,7 +89,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     }
   }
 
-  async findUserById(userId: number): Promise<ShortenedURL | null> {
+  async findUserById(userId: number): Promise<ShortenedURLEntity | null> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { id: userId },
@@ -101,7 +101,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     }
   }
 
-  async registerClick(shortenedURLId: string): Promise<ShortenedURL> {
+  async registerClick(shortenedURLId: string): Promise<ShortenedURLEntity> {
     const shortenedURL = await this.mySqlRepository.findOne({
       where: { short_url: shortenedURLId },
     });
@@ -113,21 +113,11 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     return await shortenedURL.save();
   }
 
-  // async deleteShortenedURL(id: number): Promise<void> {
-  //   try {
-  //     const result = await this.mySqlRepository.delete(id);
-  //     if (result.affected === 0) {
-  //       throw new Error("ShortenedURL not deleted");
-  //     }
-  //   } catch (error) {
-  //     throw new Error(`${error}, ShortenedURL not deleted`);
-  //   }
-  // }
 
   async updateShortenedURL(
     id: number,
-    originalURL: string
-  ): Promise<ShortenedURL> {
+    url: string
+  ): Promise<ShortenedURLEntity> {
     try {
       const shortenedURL = await this.mySqlRepository.findOne({
         where: { id: id },
@@ -135,7 +125,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
       if (!shortenedURL) {
         throw new Error("ShortenedURL not found");
       }
-      shortenedURL.url = originalURL;
+      shortenedURL.url = url;
       await this.mySqlRepository.save(shortenedURL);
       return shortenedURL;
     } catch (error) {
@@ -144,8 +134,8 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
   }
 
   async createShortenedURL(
-    data: DeepPartial<ShortenedURL>
-  ): Promise<ShortenedURL> {
+    data: DeepPartial<ShortenedURLEntity>
+  ): Promise<ShortenedURLEntity> {
     const newShortenedURL = this.mySqlRepository.create({
       ...data,
       count_clicks: 0,

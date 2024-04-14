@@ -33,6 +33,7 @@ export async function validateToken(
       return;
     }
     req.user = user;
+    req.id = decoded.userId
     next();
   } catch (error) {
     res.status(401).send({ message: "Invalid token" });

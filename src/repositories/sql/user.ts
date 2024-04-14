@@ -56,17 +56,22 @@ export class UserRepository extends Abstract<UserEntity> {
     }
   }
 
-  async editUser(id: string, user: UserEntity): Promise<UserEntity> {
+  async updateUser(id: number, user: UserEntity): Promise<UserEntity> {
     try {
-      const updatedUser = await this.mongoRepository.findOneAndUpdate(
-        { _id: new ObjectId(id) },
-        { $set: user },
-        { returnDocument: "after" }
+      
+      const updatedUser = await this.mySqlRepository.update(
+        {
+          id: id,
+        },
+        user
       );
-      if (!updatedUser || updatedUser.value === null) {
+
+      if (!updatedUser || updatedUser.affected === 0) {
         throw new Error(`User with id ${id} not found`);
       }
-      return updatedUser.value;
+      const result = new UserEntity();
+      Object.assign(updatedUser, user);
+      return result;
     } catch (error) {
       throw new Error(`${error}, User not updated`);
     }

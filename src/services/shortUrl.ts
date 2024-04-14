@@ -1,9 +1,7 @@
 import { Service } from "typedi";
-import { ShortenedURL } from "../entities";
-import { ShortenedURLRepository } from "../repositories";
-import { UserRepository } from "../repositories";
-import { UserEntity } from "../entities";
 import { DeepPartial } from "typeorm";
+import { ShortenedURLEntity, UserEntity } from "../entities";
+import { ShortenedURLRepository, UserRepository } from "../repositories";
 
 @Service()
 export class ShortenedURLService {
@@ -15,14 +13,16 @@ export class ShortenedURLService {
     this.userRepository = new UserRepository();
   }
 
-  async findByShortenedURL(shortenedURL: string): Promise<ShortenedURL | null> {
+  async findByShortenedURL(
+    shortenedURL: string
+  ): Promise<ShortenedURLEntity | null> {
     return this.shortenedURLRepository.findByShortenedURL(shortenedURL);
   }
   async registerClick(shortenedURLId: number): Promise<void> {
     await this.shortenedURLRepository.updateClicks(shortenedURLId);
   }
 
-  async shortenURL(url: string, userId?: number): Promise<ShortenedURL> {
+  async shortenURL(url: string, userId?: number): Promise<ShortenedURLEntity> {
     let user = null;
     if (userId) {
       user = await this.userRepository.findUserById(userId);
@@ -40,9 +40,9 @@ export class ShortenedURLService {
     };
 
     await this.shortenedURLRepository.createShortenedURL(
-      newShortenedURL as DeepPartial<ShortenedURL>
+      newShortenedURL as DeepPartial<ShortenedURLEntity>
     );
-    return newShortenedURL as unknown as ShortenedURL;
+    return newShortenedURL as unknown as ShortenedURLEntity;
   }
 
   private generateShortenedURL(): string {
@@ -57,15 +57,17 @@ export class ShortenedURLService {
     return short_url;
   }
 
-  async getShortenedURLById(id: number): Promise<ShortenedURL | null> {
+  async getShortenedURLById(id: number): Promise<ShortenedURLEntity> {
     return this.shortenedURLRepository.findByShortenedURLById(id);
   }
 
-  async getShortenedURLByUrl(shortUrl: string): Promise<ShortenedURL | null> {
+  async getShortenedURLByUrl(
+    shortUrl: string
+  ): Promise<ShortenedURLEntity | null> {
     return this.shortenedURLRepository.findByShortenedURL(shortUrl);
   }
 
-  async listShortenedURLs(user: UserEntity): Promise<ShortenedURL[]> {
+  async listShortenedURLs(user: UserEntity): Promise<ShortenedURLEntity[]> {
     return this.shortenedURLRepository.findByUser(user);
   }
 
@@ -75,9 +77,8 @@ export class ShortenedURLService {
 
   async updateShortenedURL(
     id: number,
-    originalURL: string,
-    user: UserEntity
-  ): Promise<ShortenedURL> {
-    return this.shortenedURLRepository.updateShortenedURL(id, originalURL);
+    body: ShortenedURLEntity
+  ): Promise<ShortenedURLEntity> {
+    return this.shortenedURLRepository.updateShortenedURL(id, body.url);
   }
 }

@@ -1,10 +1,17 @@
 // ShortenedURL.ts
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn } from 'typeorm';
-import { UserEntity } from './user';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  ManyToOne,
+  JoinColumn,
+  UpdateDateColumn,
+} from "typeorm";
+import { UserEntity } from "./user";
 
 @Entity("url_short")
-export class ShortenedURL extends BaseEntity {
-
+export class ShortenedURLEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -20,8 +27,10 @@ export class ShortenedURL extends BaseEntity {
   @Column({ nullable: true })
   deletedAt!: Date;
 
-  @ManyToOne(() => UserEntity)
-  @JoinColumn({ name: 'userId' })
-  user!: UserEntity;
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: "userId" })
+  user!: UserEntity;
 }

@@ -3,4 +3,5 @@ import { UserEntity } from "../entities";
 
 export interface CustomRequest extends Request {
   user?: UserEntity 
+  id?:number
 }

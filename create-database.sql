@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `management`.`user_info` (
   `id` int NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `management`.`url_short` (
   `short_url` varchar(255) NOT NULL,
   `count_clicks` int NOT NULL DEFAULT '0',
   `deletedAt` datetime DEFAULT NULL,
+  `updatedAt` datetime DEFAULT NULL,
   `userId` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `userId_idx` (`userId`),
