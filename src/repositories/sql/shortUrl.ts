@@ -16,9 +16,12 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
         where: { id: id },
         relations: ["user"],
       });
+      if (!result || result.deletedAt) {
+        throw new Error("Not found record");
+      }
       return result;
     } catch (error) {
-      throw new Error(`${error}, ShortenedURL not found`);
+      throw new Error(`${error}, ShortenedURL`);
     }
   }
 
@@ -58,10 +61,17 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
 
   async deleteLogicalById(id: number): Promise<void> {
     try {
+      const exists = await this.mySqlRepository.findOne({
+        where: { id },
+      });
+      if (!exists) {
+        throw new Error("ShortenedURL not found");
+      }
+
       const result = await this.mySqlRepository.update(id, {
         deletedAt: new Date(),
       });
-      if (result.affected === 0) {
+      if (!result || !result.affected || result.affected === 0) {
         throw new Error("ShortenedURL not deleted");
       }
     } catch (error) {
@@ -71,7 +81,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
   async findByUser(user: UserEntity): Promise<ShortenedURL[]> {
     try {
       const result = await this.mySqlRepository.find({
-        where: { user },
+        where: { user: { id: user.id } },
       });
       return result;
     } catch (error) {
@@ -103,16 +113,16 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     return await shortenedURL.save();
   }
 
-  async deleteShortenedURL(id: number): Promise<void> {
-    try {
-      const result = await this.mySqlRepository.delete(id);
-      if (result.affected === 0) {
-        throw new Error("ShortenedURL not deleted");
-      }
-    } catch (error) {
-      throw new Error(`${error}, ShortenedURL not deleted`);
-    }
-  }
+  // async deleteShortenedURL(id: number): Promise<void> {
+  //   try {
+  //     const result = await this.mySqlRepository.delete(id);
+  //     if (result.affected === 0) {
+  //       throw new Error("ShortenedURL not deleted");
+  //     }
+  //   } catch (error) {
+  //     throw new Error(`${error}, ShortenedURL not deleted`);
+  //   }
+  // }
 
   async updateShortenedURL(
     id: number,

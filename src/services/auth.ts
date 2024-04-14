@@ -15,7 +15,7 @@ export class AuthService {
     this.userRepository = new UserRepository();
   }
   async generateToken(payload: object): Promise<string> {
-    const token = sign(payload, configSecret, { expiresIn: '1h' });
+    const token = sign(payload, configSecret, { expiresIn: '18h' });
     return token;
   }
 

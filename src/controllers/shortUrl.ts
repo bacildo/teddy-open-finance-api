@@ -1,5 +1,4 @@
 import {
-  Authorized,
   Body,
   CurrentUser,
   Delete,
@@ -39,16 +38,36 @@ export class ShortURLController {
     return this.shortenedURLService.shortenURL(body.url, userId);
   }
 
-  @Get("/id/:id")
+  @Get("/:id")
   @UseBefore(validateToken)
   async getShortenedURL(
     @Param("id") id: number,
-    @CurrentUser() user: UserEntity
+    @Res() res: Response
+    // @CurrentUser() user: UserEntity
   ): Promise<ShortenedURL | null> {
-    return this.shortenedURLService.getShortenedURLById(id);
+    try {
+      return this.shortenedURLService.getShortenedURLById(id);
+    } catch (error) {
+      return null;
+    }
   }
+
+  @Delete("/:id")
+  @UseBefore(validateToken)
+  async deleteShortenedURL(
+    @Param("id") id: number,
+    @Res() res: Response
+  ): Promise<Response> {
+    try {
+      await this.shortenedURLService.deleteShortenedURL(id);
+      return res.send({ message: "Success!" });
+    } catch (error) {
+      return res.status(500).send({ message: "Delete failed!" });
+    }
+  }
+
   @Get()
-  async redirectToOriginalURL(
+  async countURLClicks(
     @QueryParam("shortUrl") shortUrl: string,
     @Res() res: Response
   ): Promise<Response> {
@@ -64,30 +83,19 @@ export class ShortURLController {
         res.status(404).send({ message: "URL not found" });
       }
     } catch (error) {
-      return res.status(401).send({ message: "Error registering" });
+      return res.status(401).send({ message: "Error on count clicks!" });
     }
     return res;
   }
 
-  @Get()
-  @Authorized()
-  async listShortenedURLs(
-    @CurrentUser() user: UserEntity
-  ): Promise<ShortenedURL[]> {
+  @Get("/:list")
+  @UseBefore(validateToken)
+  async listShortenedURLs(user: UserEntity): Promise<ShortenedURL[]> {
     return this.shortenedURLService.listShortenedURLs(user);
   }
 
-  @Delete("/:id")
-  @Authorized()
-  async deleteShortenedURL(
-    @Param("id") id: number,
-    @CurrentUser() user: UserEntity
-  ): Promise<void> {
-    await this.shortenedURLService.deleteShortenedURL(id);
-  }
-
   @Put("/:id")
-  @Authorized()
+  @UseBefore(validateToken)
   async updateShortenedURL(
     @Param("id") id: number,
     @Body() body: { originalURL: string },

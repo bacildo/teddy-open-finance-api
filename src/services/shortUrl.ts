@@ -70,7 +70,7 @@ export class ShortenedURLService {
   }
 
   async deleteShortenedURL(id: number): Promise<void> {
-    await this.shortenedURLRepository.deleteShortenedURL(id);
+    await this.shortenedURLRepository.deleteLogicalById(id);
   }
 
   async updateShortenedURL(
