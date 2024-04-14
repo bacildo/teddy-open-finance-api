@@ -25,6 +25,20 @@ export class ShortenedURLRepository extends Abstract<ShortenedURLEntity> {
     }
   }
 
+  async findAll():Promise<ShortenedURLEntity[]>{
+    try {
+      const result = await this.mySqlRepository.find({
+        relations: ["user"],
+      });
+      if(!result) {
+        throw new Error("Not found record");
+      }
+      return result;
+    } catch (error) {
+      throw new Error(`${error}, ShortenedURL`);
+    }
+  }
+
   async findByShortenedURL(shortUrl: string): Promise<ShortenedURLEntity | null> {
     try {
       const result = await this.mySqlRepository.findOne({

@@ -40,17 +40,54 @@ export class ShortURLController {
     return this.shortenedURLService.shortenURL(body.url, userId);
   }
 
+  @Get("/list")
+  @UseBefore(validateToken)
+  async getList(
+    @Res() res: Response,
+    @Req() req: CustomRequest
+  ): Promise<Response> {
+    try {
+      const userIdToken = req.user?.id;
+
+      if (!userIdToken) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const getShortUrl = await this.shortenedURLService.getAllShortenURLData();
+
+      if (!getShortUrl || !getShortUrl.length) {
+        return res.status(404).json({
+          message: "Shortened URLs not found",
+        });
+      }
+
+      const userShortUrls = getShortUrl.filter(
+        (shortenedURL) => shortenedURL.user?.id === userIdToken
+      );
+
+      return res.status(200).json(userShortUrls);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ error: "Can't get ShortUrl" });
+    }
+  }
+
   @Get("/:id")
   @UseBefore(validateToken)
   async getShortenedURL(
     @Param("id") id: number,
     @Res() res: Response
-    // @CurrentUser() user: UserEntity
-  ): Promise<ShortenedURLEntity | null> {
+  ): Promise<Response> {
     try {
-      return this.shortenedURLService.getShortenedURLById(id);
+      const getShortUrl = await this.shortenedURLService.getShortenedURLById(
+        id
+      );
+      const getResponse = {
+        clicks: getShortUrl.count_clicks,
+      };
+      return res.status(200).send({ clicks: getResponse });
     } catch (error) {
-      return null;
+      return res.status(500).send({ error: "Can't get ShortUrl" });
     }
   }
 
@@ -81,7 +118,9 @@ export class ShortURLController {
       await this.shortenedURLService.deleteShortenedURL(id);
       return res.send({ message: "Success!" });
     } catch (error) {
-      return res.status(500).send({ message: "Delete failed, user probably deleted!" });
+      return res
+        .status(500)
+        .send({ message: "Delete failed, user already deleted!" });
     }
   }
 
@@ -105,12 +144,6 @@ export class ShortURLController {
       return res.status(401).send({ message: "Error on count clicks!" });
     }
     return res;
-  }
-
-  @Get("/:list")
-  @UseBefore(validateToken)
-  async listShortenedURLs(user: UserEntity): Promise<ShortenedURLEntity[]> {
-    return this.shortenedURLService.listShortenedURLs(user);
   }
 
   @Put("/:id")

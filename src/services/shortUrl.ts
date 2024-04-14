@@ -22,6 +22,10 @@ export class ShortenedURLService {
     await this.shortenedURLRepository.updateClicks(shortenedURLId);
   }
 
+  async getAllShortenURLData():Promise <ShortenedURLEntity[]>{
+    return await this.shortenedURLRepository.findAll();
+  }
+
   async shortenURL(url: string, userId?: number): Promise<ShortenedURLEntity> {
     let user = null;
     if (userId) {
