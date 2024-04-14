@@ -1,4 +1,3 @@
-// middleware/validateToken.ts
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { configSecret } from "../config";
@@ -14,7 +13,6 @@ export async function validateToken(
 
   const { authorization } = req.headers;
   if (!authorization) {
-    // Se não houver autorização, continua sem interromper
     return next();
   }
 
@@ -27,8 +25,9 @@ export async function validateToken(
   const token = parts[1];
 
   try {
-    const decoded = jwt.verify(token, configSecret) as { id: number };
-    const user = await userRepository.findUserById(decoded.id);
+    const decoded = jwt.verify(token, configSecret) as { userId: number };
+
+    const user = await userRepository.findUserById(decoded.userId);
     if (!user) {
       res.status(401).send({ message: "Invalid token" });
       return;
@@ -39,3 +38,41 @@ export async function validateToken(
     res.status(401).send({ message: "Invalid token" });
   }
 }
+
+// export async function validateToken(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<void> {
+//   const userRepository = new UserRepository();
+
+//   const { authorization } = req.headers;
+//   if (!authorization) {
+//     // res.status(401).send({ message: "Invalid token" });
+//     return next()
+//   }
+//   const parts = authorization?.split(" ");
+//   if (parts?.length !== 2) {
+//     res.status(401).send({ message: "Invalid token" });
+//     return;
+//   }
+//   const [schema, token] = parts;
+//   if (!/^Bearer$/i.test(schema)) {
+//     res.status(401).send({ message: "Invalid token" });
+//     return;
+//   }
+//   try {
+//     const decoded = jwt.verify(token, configSecret) as {
+//       userId: number;
+//     };
+//     const user = await userRepository.findUserById(decoded.userId);
+//     if (!user) {
+//       res.status(401).send({ message: "Invalid token" });
+//       return;
+//     }
+//     req.body = user.id;
+//     next();
+//   } catch (error) {
+//     res.status(401).send({ message: "Invalid token" });
+//   }
+// }

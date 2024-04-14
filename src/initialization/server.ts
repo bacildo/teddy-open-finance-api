@@ -28,7 +28,7 @@ export class Server {
         if (!userId) {
           return null;
         }
-        const userRepository = new UserRepository(); // Use a injeção de dependência se possível
+        const userRepository = new UserRepository();
         const user = await userRepository.findUserById(userId);
         return user || null;
       },

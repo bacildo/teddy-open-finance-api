@@ -28,9 +28,9 @@ export class ShortURLController {
     @CurrentUser() user: UserEntity
   ): Promise<ShortenedURL> {
     let userId: number | undefined = undefined;
-    if (user) {
-      userId = user.id;
-    }
+  if (user) {
+    userId = user.id;
+  }
 
     return this.shortenedURLService.shortenURL(body.url, userId);
   }

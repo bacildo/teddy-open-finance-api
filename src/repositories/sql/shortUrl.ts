@@ -112,7 +112,6 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
   async createShortenedURL(
     data: DeepPartial<ShortenedURL>
   ): Promise<ShortenedURL> {
-    console.log("DAAAAAAAAAAAAATA", data)
     const newShortenedURL = this.mySqlRepository.create({
       ...data,
       count_clicks: 0,

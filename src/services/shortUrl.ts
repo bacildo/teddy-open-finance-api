@@ -31,7 +31,6 @@ export class ShortenedURLService {
       count_clicks: 0,
       user
     };
-    console.log("newshortenurllllllllll", newShortenedURL);
 
     await this.shortenedURLRepository.createShortenedURL(
       newShortenedURL as DeepPartial<ShortenedURL>
@@ -48,7 +47,6 @@ export class ShortenedURLService {
         Math.floor(Math.random() * characters.length)
       );
     }
-    console.log("xxxxxxxxxxxxxxx", short_url);
     return short_url;
   }
 
