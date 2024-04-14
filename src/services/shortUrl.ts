@@ -15,6 +15,13 @@ export class ShortenedURLService {
     this.userRepository = new UserRepository();
   }
 
+  async findByShortenedURL(shortenedURL: string): Promise<ShortenedURL | null> {
+    return this.shortenedURLRepository.findByShortenedURL(shortenedURL);
+  }
+  async registerClick(shortenedURLId: number): Promise<void> {
+    await this.shortenedURLRepository.updateClicks(shortenedURLId);
+  }
+
   async shortenURL(url: string, userId?: number): Promise<ShortenedURL> {
     let user = null;
     if (userId) {
@@ -29,7 +36,7 @@ export class ShortenedURLService {
       url,
       short_url: shortenedURL,
       count_clicks: 0,
-      user
+      user,
     };
 
     await this.shortenedURLRepository.createShortenedURL(
@@ -52,6 +59,10 @@ export class ShortenedURLService {
 
   async getShortenedURLById(id: number): Promise<ShortenedURL | null> {
     return this.shortenedURLRepository.findByShortenedURLById(id);
+  }
+
+  async getShortenedURLByUrl(shortUrl: string): Promise<ShortenedURL | null> {
+    return this.shortenedURLRepository.findByShortenedURL(shortUrl);
   }
 
   async listShortenedURLs(user: UserEntity): Promise<ShortenedURL[]> {

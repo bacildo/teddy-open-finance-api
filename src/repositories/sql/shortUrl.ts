@@ -10,7 +10,7 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     super(Database.mysql, ShortenedURL);
   }
 
-  async findByShortenedURLById(id: number,): Promise<ShortenedURL | null> {
+  async findByShortenedURLById(id: number): Promise<ShortenedURL | null> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { id: id },
@@ -26,12 +26,22 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { short_url: shortUrl },
-        relations: ["user"],
       });
       return result;
     } catch (error) {
       throw new Error(`${error}, ShortenedURL not found`);
     }
+  }
+
+  async updateClicks(shortenedURLId: number): Promise<void> {
+    const shortenedURL = await this.mySqlRepository.findOne({
+      where: { id: shortenedURLId },
+    });
+    if (!shortenedURL) {
+      throw new Error("Shortened URL not found");
+    }
+    shortenedURL.count_clicks++;
+    await this.mySqlRepository.save(shortenedURL);
   }
 
   async findByOriginalURL(originalURL: string): Promise<ShortenedURL | null> {
@@ -81,6 +91,18 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     }
   }
 
+  async registerClick(shortenedURLId: string): Promise<ShortenedURL> {
+    const shortenedURL = await this.mySqlRepository.findOne({
+      where: { short_url: shortenedURLId },
+    });
+    if (!shortenedURL) {
+      throw new Error("Shortened URL not found");
+    }
+
+    shortenedURL.count_clicks++;
+    return await shortenedURL.save();
+  }
+
   async deleteShortenedURL(id: number): Promise<void> {
     try {
       const result = await this.mySqlRepository.delete(id);
@@ -97,7 +119,9 @@ export class ShortenedURLRepository extends Abstract<ShortenedURL> {
     originalURL: string
   ): Promise<ShortenedURL> {
     try {
-      const shortenedURL = await this.mySqlRepository.findOne({ where: { id: id } })
+      const shortenedURL = await this.mySqlRepository.findOne({
+        where: { id: id },
+      });
       if (!shortenedURL) {
         throw new Error("ShortenedURL not found");
       }
