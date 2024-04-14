@@ -40,6 +40,10 @@ export class UserService {
     return newUser;
   }
 
+  async findUserById(id: number): Promise<UserEntity> {
+    return this.userRepository.findUserById(id);
+  }
+
   async updateUser(id: number, user: UserEntity): Promise<UserEntity> {
     if (user.password) {
       user.password = bcrypt.hashSync(user.password, 10);

@@ -12,12 +12,15 @@ export class UserRepository extends Abstract<UserEntity> {
     super(Database.mysql, UserEntity);
   }
 
-  async findUserById(id: number): Promise<UserEntity | null> {
+  async findUserById(id: number): Promise<UserEntity> {
     try {
       const result = await this.mySqlRepository.findOne({
         where: { id: id },
       });
-      return result;
+      if (!result) {
+        throw new Error(`User with id ${id} not found`);
+      }
+      return result
     } catch (error) {
       throw new Error(`${error}, User not found`);
     }

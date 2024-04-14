@@ -114,7 +114,6 @@ export class ShortURLController {
       if (userIdToken !== shortenedURL.user.id) {
         return res.status(403).json({ message: "Forbidden" });
       }
-
       const updatedShortenURL =
         await this.shortenedURLService.updateShortenedURL(id, body);
       const updatedResponse = {

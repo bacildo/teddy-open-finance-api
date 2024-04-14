@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   Res,
   UseBefore,
 } from "routing-controllers";
@@ -14,6 +15,7 @@ import { ShortenedURLEntity, UserEntity } from "../entities/";
 import { validateToken } from "../middleware/jwtVerify";
 import { UserService } from "../services/";
 import { Response } from "express";
+import { CustomRequest } from "../interfaces";
 
 @Service()
 @JsonController("/user")
@@ -41,11 +43,25 @@ export class UserController {
   }
   @Put("/:id")
   async updateUser(
-    @Param("id") id: number,
+    @UseBefore(validateToken)
+    @Param("id")
+    id: number,
     @Body() user: UserEntity,
-    @Res() res: Response
+    @Res() res: Response,
+    @Req() req: CustomRequest
   ): Promise<Response> {
     try {
+      const userIdToken = req.user?.id;
+      const userId = await this.userService.findUserById(id);
+
+      if (!userIdToken) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      if (userIdToken !== userId.id) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
       const updatedUser = await this.userService.updateUser(id, user);
       const updatedResponse = {
         email: updatedUser.email,
