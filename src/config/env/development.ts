@@ -15,11 +15,12 @@ export const mysqlOptions: DataSourceOptions = {
   entities: [`${sourcepath}/entities/sql/*.{js,ts}`],
 };
 
-export const configSecret = 'SECRETTOKEN'
+export const configSecret = "SECRETTOKEN";
 
 export const databaseEnabled = {
   mysqlOptions: true,
 };
+export const shortUrlBase = "http://localhost/";
 
 export const serverPort = {
   port: 3000,

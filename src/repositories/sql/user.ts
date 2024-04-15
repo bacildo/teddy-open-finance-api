@@ -1,7 +1,4 @@
-import jwt from "jsonwebtoken";
-import { ObjectId } from "mongodb";
 import { Service } from "typedi";
-import { configSecret } from "../../config";
 import { UserEntity } from "../../entities";
 import { Database } from "../../initialization";
 import { Abstract } from "../abstract/abstract";
@@ -17,24 +14,13 @@ export class UserRepository extends Abstract<UserEntity> {
       const result = await this.mySqlRepository.findOne({
         where: { id: id },
       });
+
       if (!result) {
         throw new Error(`User with id ${id} not found`);
       }
-      return result
+      return result;
     } catch (error) {
       throw new Error(`${error}, User not found`);
-    }
-  }
-
-  async generateToken(id: string): Promise<string> {
-    try {
-      const token = jwt.sign({ id }, configSecret, {
-        expiresIn: 86400,
-      });
-      return token;
-    } catch (error) {
-      console.error(error);
-      throw new Error("Failed to generate token");
     }
   }
 
@@ -61,7 +47,6 @@ export class UserRepository extends Abstract<UserEntity> {
 
   async updateUser(id: number, user: UserEntity): Promise<UserEntity> {
     try {
-      
       const updatedUser = await this.mySqlRepository.update(
         {
           id: id,
@@ -80,18 +65,4 @@ export class UserRepository extends Abstract<UserEntity> {
     }
   }
 
-  async deleteUser(id: ObjectId): Promise<string | void> {
-    try {
-      const result = await this.mongoRepository.deleteOne({
-        _id: new ObjectId(id),
-      });
-
-      if (result.deletedCount === 0) {
-        throw new Error(`User with id ${id} not found`);
-      }
-      return `User with id ${id} deleted successfully`;
-    } catch (error) {
-      throw new Error(`${error}, User not deleted`);
-    }
-  }
 }

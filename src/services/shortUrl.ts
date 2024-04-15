@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import { DeepPartial } from "typeorm";
 import { ShortenedURLEntity, UserEntity } from "../entities";
 import { ShortenedURLRepository, UserRepository } from "../repositories";
+import { shortUrlBase } from "../config/"
 
 @Service()
 export class ShortenedURLService {
@@ -52,7 +53,7 @@ export class ShortenedURLService {
   private generateShortenedURL(): string {
     const characters =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let short_url = "http://localhost/";
+    let short_url = shortUrlBase;
     for (let i = 0; i < 6; i++) {
       short_url += characters.charAt(
         Math.floor(Math.random() * characters.length)

@@ -1,7 +1,5 @@
 import {
   Body,
-  CurrentUser,
-  Get,
   JsonController,
   Param,
   Post,
@@ -11,7 +9,7 @@ import {
   UseBefore,
 } from "routing-controllers";
 import { Service } from "typedi";
-import { ShortenedURLEntity, UserEntity } from "../entities/";
+import { UserEntity } from "../entities/";
 import { validateToken } from "../middleware/jwtVerify";
 import { UserService } from "../services/";
 import { Response } from "express";
@@ -23,15 +21,6 @@ export class UserController {
   private userService: UserService;
   constructor() {
     this.userService = new UserService();
-  }
-
-  @Get("/:id")
-  @UseBefore(validateToken)
-  async getShortenedURLs(
-    @Param("id") id: number,
-    @CurrentUser() user: UserEntity
-  ): Promise<ShortenedURLEntity[]> {
-    return this.userService.getShortenedURLsByUser(id, user);
   }
   @Post("/register")
   async createUser(@Body() user: UserEntity): Promise<UserEntity> {
@@ -53,15 +42,12 @@ export class UserController {
     try {
       const userIdToken = req.user?.id;
       const userId = await this.userService.findUserById(id);
-
       if (!userIdToken) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-
       if (userIdToken !== userId.id) {
         return res.status(403).json({ message: "Forbidden" });
       }
-
       const updatedUser = await this.userService.updateUser(id, user);
       const updatedResponse = {
         email: updatedUser.email,

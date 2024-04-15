@@ -17,7 +17,7 @@ import { validateToken } from "../middleware/jwtVerify";
 import { ShortenedURLService } from "../services";
 import { Response } from "express";
 import { Service } from "typedi";
-import { CustomRequest } from "../interfaces";
+import { CustomRequest, ShortenUrlResponse } from "../interfaces";
 
 @Service()
 @JsonController("/shortenedURL")
@@ -26,20 +26,31 @@ export class ShortURLController {
   constructor() {
     this.shortenedURLService = new ShortenedURLService();
   }
-
   @Post()
   @UseBefore(validateToken)
   async shortenURL(
     @Body() body: ShortenedURLEntity,
     @CurrentUser() user: UserEntity
-  ): Promise<ShortenedURLEntity> {
-    let userId: number | undefined = undefined;
-    if (user) {
-      userId = user.id;
+  ): Promise<ShortenUrlResponse> {
+    try {
+      let userId: number | undefined = undefined;
+      if (user) {
+        userId = user.id;
+      }
+      const shortenedURL = await this.shortenedURLService.shortenURL(
+        body.url,
+        userId
+      );
+      const response: ShortenUrlResponse = {
+        url: shortenedURL.url,
+        short_url: shortenedURL.short_url,
+        idUser: shortenedURL.user?.id ?? null,
+      };
+      return response;
+    } catch (error) {
+      throw new Error("Cant find shortened URL");
     }
-    return this.shortenedURLService.shortenURL(body.url, userId);
   }
-
   @Get("/list")
   @UseBefore(validateToken)
   async getList(
@@ -48,49 +59,28 @@ export class ShortURLController {
   ): Promise<Response> {
     try {
       const userIdToken = req.user?.id;
-
       if (!userIdToken) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).send({ message: "Unauthorized" });
       }
-
       const getShortUrl = await this.shortenedURLService.getAllShortenURLData();
-
       if (!getShortUrl || !getShortUrl.length) {
-        return res.status(404).json({
+        return res.status(404).send({
           message: "Shortened URLs not found",
         });
       }
-
       const userShortUrls = getShortUrl.filter(
         (shortenedURL) => shortenedURL.user?.id === userIdToken
       );
-
-      return res.status(200).json(userShortUrls);
+      const response = userShortUrls.map((shortenedURL) => ({
+        count_clicks: shortenedURL.count_clicks,
+        short_url: shortenedURL.short_url,
+      }));
+      return res.status(200).send({ response: response });
     } catch (error) {
       console.log(error);
       return res.status(500).send({ error: "Can't get ShortUrl" });
     }
   }
-
-  @Get("/:id")
-  @UseBefore(validateToken)
-  async getShortenedURL(
-    @Param("id") id: number,
-    @Res() res: Response
-  ): Promise<Response> {
-    try {
-      const getShortUrl = await this.shortenedURLService.getShortenedURLById(
-        id
-      );
-      const getResponse = {
-        clicks: getShortUrl.count_clicks,
-      };
-      return res.status(200).send({ clicks: getResponse });
-    } catch (error) {
-      return res.status(500).send({ error: "Can't get ShortUrl" });
-    }
-  }
-
   @Delete("/:id")
   @UseBefore(validateToken)
   async deleteShortenedURL(
@@ -101,31 +91,22 @@ export class ShortURLController {
     try {
       const userIdToken = req.user?.id;
       const userId = await this.shortenedURLService.getShortenedURLById(id);
-
-      if (!userId.user) {
-        return res
-          .status(404)
-          .json({ message: "You must be logged in for delete a user" });
-      }
       if (!userIdToken) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).send({ message: "Unauthorized" });
       }
-
-      if (userIdToken !== userId.user.id) {
-        return res.status(403).json({ message: "Forbidden" });
+      if (userIdToken && userId.user && userIdToken !== userId.user.id) {
+        return res.status(403).send({ message: "Forbidden" });
       }
-
       await this.shortenedURLService.deleteShortenedURL(id);
       return res.send({ message: "Success!" });
     } catch (error) {
       return res
         .status(500)
-        .send({ message: "Delete failed, user already deleted!" });
+        .send({ message: "Delete failed, already deleted!" });
     }
   }
-
   @Get()
-  async countURLClicks(
+  async redirectUrl(
     @QueryParam("shortUrl") shortUrl: string,
     @Res() res: Response
   ): Promise<Response> {
@@ -133,7 +114,6 @@ export class ShortURLController {
       const shortenedURL = await this.shortenedURLService.getShortenedURLByUrl(
         shortUrl
       );
-
       if (shortenedURL) {
         res.redirect(shortenedURL.url);
         await this.shortenedURLService.registerClick(shortenedURL.id);
@@ -141,7 +121,7 @@ export class ShortURLController {
         res.status(404).send({ message: "URL not found" });
       }
     } catch (error) {
-      return res.status(401).send({ message: "Error on count clicks!" });
+      return res.status(401).send({ message: "Error on redirect!" });
     }
     return res;
   }
@@ -158,10 +138,10 @@ export class ShortURLController {
       const userIdToken = req.user?.id;
       const userId = await this.shortenedURLService.getShortenedURLById(id);
       if (!userIdToken) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).send({ message: "Unauthorized" });
       }
       if (userIdToken !== userId.user.id) {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).send({ message: "Forbidden" });
       }
       const updatedShortenURL =
         await this.shortenedURLService.updateShortenedURL(id, body);
