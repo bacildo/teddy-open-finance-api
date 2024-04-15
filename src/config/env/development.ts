@@ -5,7 +5,7 @@ export const sourcepath = resolve(__dirname, "../../");
 export const mysqlOptions: DataSourceOptions = {
   type: "mysql",
   name: "mysql",
-  host: "localhost",
+  host: "mysql",
   port: 3306,
   acquireTimeout: 20000,
   database: "management",

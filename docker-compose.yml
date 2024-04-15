@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: management
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./create-database.sql:/docker-entrypoint-initdb.d/init.sql
+
+  node-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: management
+      DB_USERNAME: dev
+      DB_PASSWORD: dev
+      SECRET_TOKEN: SECRET_TOKEN
+      BASE_URL: http://localhost:3000
+    volumes:
+      - .:/app
+
+volumes:
+  mysql-data:

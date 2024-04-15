@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Service } from "typedi";
 import { DeepPartial } from "typeorm";
 import { ShortenedURLEntity, UserEntity } from "../entities";

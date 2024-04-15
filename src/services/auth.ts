@@ -1,6 +1,6 @@
+import 'reflect-metadata';
 import jwt from "jsonwebtoken";
 import { configSecret } from "../config";
-
 import { Service } from 'typedi';
 import { UserRepository } from '../repositories/';
 import { sign } from 'jsonwebtoken';

@@ -1,7 +1,8 @@
+import "reflect-metadata";
 import { Service } from "typedi";
 import { UserEntity } from "../entities/";
 import { UserRepository } from "../repositories/";
-import bcrypt from "bcrypt";
+import { createHash } from "crypto";
 
 @Service()
 export class UserService {
@@ -11,7 +12,7 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
   async createUser(body: UserEntity): Promise<UserEntity> {
-    const hashPassword = bcrypt.hashSync(body.password, 10);
+    const hashPassword = encryptPassword(body.password);
     const verifyUser = await this.userRepository.findUserByCredentials(
       body.email
     );
@@ -29,7 +30,7 @@ export class UserService {
 
   async updateUser(id: number, user: UserEntity): Promise<UserEntity> {
     if (user.password) {
-      user.password = bcrypt.hashSync(user.password, 10);
+      user.password = encryptPassword(user.password);
     }
     await this.userRepository.updateUser(id, user);
     const updatedUser = await this.userRepository.findUserById(id);
@@ -38,4 +39,9 @@ export class UserService {
     }
     return updatedUser;
   }
+}
+function encryptPassword(password: string): string {
+  const hash = createHash("sha256");
+  hash.update(password);
+  return hash.digest("hex");
 }

@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { JsonController, Post, Body } from "routing-controllers";
 import { Service } from "typedi";
 import { AuthService } from "../services/";

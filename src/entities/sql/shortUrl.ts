@@ -1,4 +1,3 @@
-// ShortenedURL.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
