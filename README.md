@@ -27,7 +27,7 @@ URL: http://localhost:3000/auth/login
 Body:
 json
 {
-  "email": "bacilddo@e.com",
+  "email": "exemplo@email.com",
   "password": "12345"
 }
 Autenticação: Sem Bearer Token
@@ -38,7 +38,7 @@ URL: http://localhost:3000/user/1
 Body:
 json
 {
-  "email": "bacilddo@e.com",
+  "email": "exemplo@email.com",
   "password": "12345"
 }
 Autenticação: Com Bearer Token
@@ -49,7 +49,7 @@ URL: http://localhost:3000/user/register
 Body:
 json
 {
-  "email": "bacilddo@e.com",
+  "email": "exemplo@email.com",
   "password": "12345"
 }
 Autenticação: Sem Bearer Token
